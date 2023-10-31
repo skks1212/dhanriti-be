@@ -4,6 +4,8 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from djangoql.admin import DjangoQLSearchMixin
 from simple_history.admin import SimpleHistoryAdmin
 
+from dhanriti.models.tanks import Canvas, Flow, Funnel, Tank
+
 from .models import (
     Login,
     User,
@@ -80,16 +82,29 @@ class UserAdmin(DjangoQLSearchMixin, BaseUserAdmin):
     readonly_fields = ("modified_at", "last_login", "date_joined")
 
 
-class CommentClapAdminForm(forms.ModelForm):
-    def clean(self):
-        cleaned_data = super().clean()
-        part = cleaned_data.get("part")
-        leaf = cleaned_data.get("leaf")
-        if not part and not leaf:
-            raise forms.ValidationError(
-                "Either 'part' or 'leaf' field must have a value."
-            )
-        return cleaned_data
+@admin.register(Login)
+class LoginAdmin(DjangoQLSearchMixin, admin.ModelAdmin):
+    pass
+
+
+@admin.register(Canvas)
+class CanvasAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Tank)
+class TankAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Funnel)
+class FunnelAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Flow)
+class FlowAdmin(admin.ModelAdmin):
+    pass
 
 
 admin.site.site_header = "Dhanriti Admin"

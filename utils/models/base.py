@@ -18,8 +18,6 @@ class BaseModel(models.Model):
         auto_now=True, null=True, blank=True, db_index=True
     )
 
-    old_pk = models.IntegerField(null=True, blank=True, db_index=True)
-
     deleted = models.BooleanField(default=False, db_index=True)
 
     objects = BaseManager()
