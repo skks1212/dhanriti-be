@@ -139,7 +139,6 @@ MIDDLEWARE = [
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
-    "utils.middlewares.AccountSetupMiddleware",
     "utils.middlewares.LastOnlineMiddleware",
     "utils.middlewares.RateLimitMiddleware",
 ]
@@ -264,32 +263,7 @@ CELERY_TASK_TIME_LIMIT = 5 * 60
 CELERY_TASK_SOFT_TIME_LIMIT = 60
 
 
-CELERY_BEAT_SCHEDULE = {
-    "update-reads": {
-        "task": "dhanriti.tasks.update_count_tasks.update_reads_claps_comments",
-        "schedule": crontab(hour=18, minute=30),
-    },
-    "send-unsent-emails": {
-        "task": "dhanriti.tasks.email_tasks.send_unsent_mails",
-        "schedule": 3600,
-    },
-    "daily_stats": {
-        "task": "dhanriti.tasks.discord_stats.discord_webhook_daily",
-        "schedule": crontab(hour=13, minute=00),
-    },
-    "weekly_stats": {
-        "task": "dhanriti.tasks.discord_stats.discord_webhook_weekly",
-        "schedule": crontab(hour=13, minute=00, day_of_week=1),
-    },
-    "monthly_stats": {
-        "task": "dhanriti.tasks.discord_stats.discord_webhook_monthly",
-        "schedule": crontab(hour=13, minute=00, day_of_month=1),
-    },
-    "user_milestone": {
-        "task": "dhanriti.tasks.discord_stats.user_milestone_hit",
-        "schedule": crontab(hour=13, minute=00),
-    },
-}
+CELERY_BEAT_SCHEDULE = {}
 
 # django-rest-framework
 # -------------------------------------------------------------------------------
@@ -321,9 +295,9 @@ REST_FRAMEWORK = {
 SPECTACULAR_SETTINGS = {
     "TITLE": "dhanriti API",
     "DESCRIPTION": "Api for dhanriti",
-    "VERSION": "4.0.0",
+    "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
-    "SCHEMA_PATH_PREFIX": "/v4/",
+    "SCHEMA_PATH_PREFIX": "/v1/",
     "LICENSE": {
         "name": "MIT License",
     },
@@ -401,10 +375,8 @@ VISHNU_API_KEY = env(
 
 VISHNU_HOST = env(
     "VISHNU_HOST",
-    default="https://auth-api.dhanriti.net",
+    default="https://auth-api.writeroo.net",
 )
-
-AUTH_MODE = "VISHNU" if VISHNU_API_KEY else "LOCAL"
 
 # Emails
 # ------------------------------------------------------------------------------

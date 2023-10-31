@@ -19,9 +19,9 @@ urlpatterns = [
 # API URLS
 api_urlpatterns = [
     # API base url
-    path("v4/", include("dhanriti.api_router")),
+    path("v1/", include("dhanriti.api_router")),
     # Schema
-    path("v4/schema", SpectacularAPIView.as_view(), name="schema"),
+    path("v1/schema", SpectacularAPIView.as_view(), name="schema"),
 ]
 
 if settings.DEBUG:
@@ -29,16 +29,16 @@ if settings.DEBUG:
     # these url in browser to see how these error pages look like.
     api_urlpatterns += [
         path(
-            "v4/schema/swagger/",
+            "v1/schema/swagger/",
             SpectacularSwaggerView.as_view(url_name="schema"),
             name="swagger-ui",
         ),
         path(
-            "v4/schema/redoc/",
+            "v1/schema/redoc/",
             SpectacularRedocView.as_view(url_name="schema"),
             name="redoc",
         ),
-        path("", RedirectView.as_view(url="/v4/schema/swagger/", permanent=False)),
+        path("", RedirectView.as_view(url="/v1/schema/swagger/", permanent=False)),
         path(
             "400/",
             default_views.bad_request,

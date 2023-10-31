@@ -19,28 +19,6 @@ class TimezoneMiddleware:
         return self.get_response(request)
 
 
-class AccountSetupMiddleware:
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        user = request.user
-        if user.is_staff:
-            return self.get_response(request)
-        if user.is_authenticated and not user.account_setup:
-            if (
-                not request.path.startswith("/v4/auth")
-                and not request.path.startswith(f"/v4/users/{user.username}/setup")
-                and not request.path.startswith("/v4/crons")
-                and not request.path.startswith("/v4/users/me")
-                and not request.path.startswith("/v4/users/")
-                and not request.path.startswith("/v4/invites")
-            ):
-                return HttpResponseForbidden("Account not setup")
-
-        return self.get_response(request)
-
-
 class LastOnlineMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response

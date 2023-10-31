@@ -6,12 +6,5 @@ class dhanritiConfig(AppConfig):
     name = "dhanriti"
 
     def ready(self):
-        from .signals import (  # noqa: F401
-            login_ip,
-            notifications,
-            push_notifications,
-            shelfleaf,
-            shelfstory,
-            stories,
-            update_counts,
-        )
+        # from .signals import
+        pass

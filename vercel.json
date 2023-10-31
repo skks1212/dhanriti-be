@@ -19,15 +19,5 @@
             "src": "/(.*)",
             "dest": "core/wsgi.py"
         }
-    ],
-    "crons": [
-        {
-            "path": "/v4/crons/updatecount/3z1OxJQuzkvKKw9ZJDWnZE8R8SuysN7ghdFzwk870UzLXB84ww",
-            "schedule": "30 18 * * *"
-        },
-        {
-            "path": "/v4/crons/emailnotifications/3z1OxJQuzkvKKw9ZJDWnZE8R8SuysN7ghdFzwk870UzLXB84ww",
-            "schedule": "30 15 * * *"
-        }
     ]
 }
