@@ -1,0 +1,12 @@
+# PRECAUTION: avoid production dependencies that aren't in development
+
+-r base.txt
+-r digitalocean.txt
+
+gunicorn==21.2.0  # https://github.com/benoitc/gunicorn
+sentry-sdk==1.32.0  # https://github.com/getsentry/sentry-python
+
+# Django
+# ------------------------------------------------------------------------------
+django-anymail[mailgun]==10.1  # https://github.com/anymail/django-anymail
+
