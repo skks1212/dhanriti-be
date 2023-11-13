@@ -77,8 +77,8 @@ class FunnelViewSet(BaseModelViewSet):
             super()
             .get_queryset()
             .filter(
-                in_tank_canvas_user=self.request.user,
-                out_tank_canvas_user=self.request.user,
+                in_tank__canvas__user=self.request.user,
+                out_tank__canvas__user=self.request.user,
             )
         )
 
