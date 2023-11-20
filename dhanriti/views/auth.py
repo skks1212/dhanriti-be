@@ -77,6 +77,8 @@ class APILoginView(CreateAPIView):
                     },
                     headers={"X-API-KEY": VISHNU_API_KEY},
                 )
+                # print raw 
+                print(service_token_request)
                 json_data = service_token_request.json()
                 print(json_data)
                 service_token = json_data["token"]

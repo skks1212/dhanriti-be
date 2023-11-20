@@ -64,6 +64,18 @@ class TankViewSet(BaseModelViewSet):
         )
         serializer.save(canvas=canvas)
 
+    def destroy(self, request, *args, **kwargs):
+        strategy = request.data.get("strategy", "transfer")
+        canvas_external_id = self.kwargs.get("canvas_external_id")
+        if strategy != "discard":
+            canvas = Canvas.objects.get(
+            external_id=canvas_external_id, user=self.request.user
+            )
+            canvas.filled += self.get_object().filled
+            canvas.save()
+
+        return super().destroy(request, *args, **kwargs)
+
 
 class FunnelViewSet(BaseModelViewSet):
     queryset = Funnel.objects.all()
@@ -77,8 +89,7 @@ class FunnelViewSet(BaseModelViewSet):
             super()
             .get_queryset()
             .filter(
-                in_tank__canvas__user=self.request.user,
-                out_tank__canvas__user=self.request.user,
+                canvas__user=self.request.user,
             )
         )
 
@@ -90,3 +101,20 @@ class FunnelViewSet(BaseModelViewSet):
             external_id=external_id,
         )
         return obj
+
+    def perform_create(self, serializer):
+        in_tank_external_id = self.request.data.get("in_tank_external_id")
+        out_tank_external_id = self.request.data.get("out_tank_external_id")
+
+        in_tank = None
+
+        if in_tank_external_id:
+            in_tank = Tank.objects.get(
+                external_id=in_tank_external_id, canvas__user=self.request.user
+            )
+
+        out_tank = Tank.objects.get(external_id=out_tank_external_id, canvas__user=self.request.user)
+
+        print(in_tank, out_tank)
+
+        serializer.save(in_tank=in_tank, out_tank=out_tank, canvas=out_tank.canvas)

@@ -11,6 +11,7 @@ class Canvas(BaseModel):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, blank=False, null=False, related_name="canvases"
     )
+    filled = models.FloatField(blank=False, null=False, default=0)
     inflow = models.FloatField(blank=False, null=True)
     inflow_rate = models.CharField(
         max_length=255,
@@ -19,7 +20,7 @@ class Canvas(BaseModel):
         validators=[is_valid_crontab_expression],
     )
 
-    def _str_(self) -> str:
+    def __str__(self) -> str:
         return f"{self.name} - {self.inflow} Rs."
 
 
@@ -28,11 +29,12 @@ class Tank(BaseModel):
     description = models.TextField(blank=True, null=True)
     capacity = models.FloatField(blank=True, null=True)
     color = models.CharField(max_length=255, blank=True, null=True)
+    filled = models.FloatField(blank=False, null=False, default=0)
     canvas = models.ForeignKey(
         Canvas, on_delete=models.CASCADE, blank=False, null=False, related_name="tanks"
     )
 
-    def _str_(self) -> str:
+    def __str__(self) -> str:
         return f"{self.name} - {self.capacity} Rs."
 
 
@@ -53,6 +55,13 @@ class Funnel(BaseModel):
         blank=False,
         null=False,
         related_name="out_tank",
+    )
+    canvas= models.ForeignKey(
+        Canvas,
+        on_delete=models.CASCADE,
+        blank=False,
+        null=True,
+        related_name="canvas",
     )
 
 

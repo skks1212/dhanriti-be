@@ -17,10 +17,10 @@ if settings.DEBUG:
 
 router.register(r"users", UserViewSet)
 router.register(r"canvases", CanvasViewSet)
-router.register(r"funnels", FunnelViewSet)
 
 canvas_router = NestedRouter(router, r"canvases", lookup="canvas")
 canvas_router.register(r"tanks", TankViewSet, basename="canvas-tanks")
+canvas_router.register(r"funnels", FunnelViewSet, basename="canvas-funnels")
 
 auth_urls = [
     path("login", APILoginView.as_view(), name="login"),
