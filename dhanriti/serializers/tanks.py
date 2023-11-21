@@ -2,11 +2,13 @@ from calendar import c
 from rest_framework import serializers
 
 from dhanriti.models.tanks import Canvas, Flow, Funnel, Tank
+from django.db.models import Sum
 
 
 class CanvasSerializer(serializers.ModelSerializer):
     funnels = serializers.SerializerMethodField()
     last_flows = serializers.SerializerMethodField()
+    total_money = serializers.SerializerMethodField()
 
     class Meta:
         model = Canvas
@@ -20,7 +22,8 @@ class CanvasSerializer(serializers.ModelSerializer):
             "external_id",
             "created_at",
             "modified_at",
-            "filled"
+            "filled",
+            "total_money"
         )
         read_only_fields = ("external_id", "created_at", "modified_at", "tanks")
 
@@ -39,6 +42,11 @@ class CanvasSerializer(serializers.ModelSerializer):
     def get_last_flows(self, obj):
         flows = Flow.objects.filter(canvas=obj, funnel=None).order_by('-created_at')[:5]
         return FlowSerializer(flows, many=True).data
+    
+    def get_total_money(self, obj):
+        total_money = Tank.objects.filter(canvas=obj).aggregate(total_filled=Sum('filled'))['total_filled']
+        total_money = (total_money or 0) + obj.filled
+        return total_money
 
 
 class TankSerializer(serializers.ModelSerializer):
