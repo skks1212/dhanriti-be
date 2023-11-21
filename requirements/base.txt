@@ -28,4 +28,4 @@ drf-nested-routers==0.93.4 # https://github.com/alanjds/drf-nested-routers
 drf-spectacular==0.26.5 # https://github.com/tfranzel/drf-spectacular
 #mysqlclient
 requests
-croniter=2.0.1
+croniter==2.0.1
