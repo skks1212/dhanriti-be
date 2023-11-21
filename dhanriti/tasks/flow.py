@@ -2,10 +2,10 @@ from dhanriti.models.enums import FlowRateType, FlowType
 from dhanriti.models.tanks import Canvas, Flow, Funnel
 
 
-def trigger_canvas_inflow(canvas : Canvas):
-    Flow.objects.create(canvas=canvas, flowed=canvas.inflow)
+def trigger_canvas_inflow(canvas : Canvas, manual_trigger=False):
+    Flow.objects.create(canvas=canvas, flowed=canvas.inflow, manual=manual_trigger)
 
-def trigger_funnel_flow(funnel: Funnel, timely_trigger=False, bypass_last_flow=False):
+def trigger_funnel_flow(funnel: Funnel, timely_trigger=False, bypass_last_flow=False, manual_trigger=False):
     print ("--- New Flow ---")
     in_tank = funnel.in_tank
     last_flow = None
@@ -44,4 +44,4 @@ def trigger_funnel_flow(funnel: Funnel, timely_trigger=False, bypass_last_flow=F
 
     print(f"flowing {flow} from {funnel.in_tank.name if funnel.in_tank else 'Main Tank'} to {funnel.out_tank.name}")
 
-    Flow.objects.create(funnel=funnel, flowed=flow)
+    Flow.objects.create(funnel=funnel, flowed=flow, canvas=funnel.canvas, manual=manual_trigger)

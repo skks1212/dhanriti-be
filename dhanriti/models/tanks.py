@@ -73,3 +73,5 @@ class Flow(BaseModel):
         Canvas, on_delete=models.CASCADE, blank=False, null=True, related_name="flow_canvas"
     )
     flowed = models.FloatField(blank=False, null=True)
+    manual = models.BooleanField(default=False)
+    meta = models.JSONField(blank=True, null=True)

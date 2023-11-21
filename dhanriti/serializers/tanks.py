@@ -87,6 +87,14 @@ class FunnelSerializer(serializers.ModelSerializer):
         flows = Flow.objects.filter(funnel=obj).order_by('-created_at')[:5]
         return FlowSerializer(flows, many=True).data
 
+class FunnelDetailSerializer(FunnelSerializer):
+    in_tank = TankSerializer(read_only=True)
+
+    class Meta(FunnelSerializer.Meta):
+        fields = FunnelSerializer.Meta.fields + (
+            "in_tank",
+        )
+        read_only_fields = FunnelSerializer.Meta.read_only_fields +  ("in_tank",)
 
 class FlowSerializer(serializers.ModelSerializer):
 
@@ -97,5 +105,18 @@ class FlowSerializer(serializers.ModelSerializer):
             "external_id",
             "created_at",
             "modified_at",
+            "meta",
+            "manual"
         )
         read_only_fields = ("external_id", "created_at", "modified_at")
+
+class FlowDetailSerializer(FlowSerializer):
+    funnel = FunnelDetailSerializer(read_only=True)
+    canvas = CanvasSerializer(read_only=True)
+
+    class Meta(FlowSerializer.Meta):
+        fields = FlowSerializer.Meta.fields + (
+            "funnel",
+            "canvas",
+        )
+        read_only_fields = FlowSerializer.Meta.read_only_fields + ("funnel", "canvas")

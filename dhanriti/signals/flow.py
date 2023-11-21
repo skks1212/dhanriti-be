@@ -15,7 +15,7 @@ def flowed(sender, instance: Flow, created, raw, **kwargs):
             instance.canvas.filled += instance.flowed
             instance.canvas.save()
             for funnel in Funnel.objects.filter(canvas=instance.canvas, in_tank=None):
-                trigger_funnel_flow(funnel)
+                trigger_funnel_flow(funnel, manual_trigger=instance.manual)
         elif instance.funnel and not instance.canvas:
             if instance.funnel.in_tank:
                 instance.funnel.in_tank.filled -= instance.flowed
@@ -26,4 +26,4 @@ def flowed(sender, instance: Flow, created, raw, **kwargs):
             instance.funnel.out_tank.filled += instance.flowed
             instance.funnel.out_tank.save()
             for funnel in Funnel.objects.filter(in_tank=instance.funnel.out_tank):
-                trigger_funnel_flow(funnel)
+                trigger_funnel_flow(funnel, manual_trigger=instance.manual)

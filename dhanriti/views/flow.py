@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from dhanriti.models.tanks import Canvas, Flow, Funnel
 from dhanriti.serializers.tanks import (
+    FlowDetailSerializer,
     FlowSerializer,
 )
 from dhanriti.tasks.flow import trigger_canvas_inflow, trigger_funnel_flow
@@ -21,6 +22,8 @@ class FlowFilter(FilterSet):
         model = Flow
         fields = {
             "canvas__external_id": ["exact"],
+            "funnel__out_tank__external_id": ["exact"],
+            "funnel__in_tank__external_id": ["exact"],
             "funnel__external_id": ["exact"],
             "flowed": ["exact", "lte", "gte"],
             "created_at": ["exact", "lte", "gte"],
@@ -34,7 +37,7 @@ class FlowViewSet(
     RetrieveModelMixin,
 ):
     queryset = Flow.objects.all()
-    serializer_class = FlowSerializer
+    serializer_class = FlowDetailSerializer
     permission_classes = (permissions.IsAuthenticated,)
     filterset_class = FlowFilter
 
@@ -59,10 +62,10 @@ class FlowViewSet(
             funnel = get_object_or_404(Funnel, external_id=funnel_external_id)
             print("triggering flow for funnel")
             print(funnel)
-            trigger_funnel_flow(funnel, False, True)
+            trigger_funnel_flow(funnel, bypass_last_flow=True, manual_trigger=True)
         else:
             print("triggering flow for canvas")
             print(canvas)
-            trigger_canvas_inflow(canvas)
+            trigger_canvas_inflow(canvas, manual_trigger=True)
         
         return Response(status=status.HTTP_201_CREATED)
