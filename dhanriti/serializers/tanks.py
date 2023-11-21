@@ -6,6 +6,7 @@ from dhanriti.models.tanks import Canvas, Flow, Funnel, Tank
 
 class CanvasSerializer(serializers.ModelSerializer):
     funnels = serializers.SerializerMethodField()
+    last_flows = serializers.SerializerMethodField()
 
     class Meta:
         model = Canvas
@@ -14,6 +15,7 @@ class CanvasSerializer(serializers.ModelSerializer):
             "description",
             "inflow",
             "inflow_rate",
+            "last_flows",
             "funnels",
             "external_id",
             "created_at",
@@ -30,9 +32,13 @@ class CanvasSerializer(serializers.ModelSerializer):
     def get_funnels(self, obj):
         # get all funnels with in_tank = None
 
-        funnels = Funnel.objects.filter(in_tank=None, out_tank__canvas=obj).order_by('created_at')
+        funnels = Funnel.objects.filter(in_tank=None, out_tank__canvas=obj).order_by('-created_at')
 
         return FunnelSerializer(funnels, many=True).data
+    
+    def get_last_flows(self, obj):
+        flows = Flow.objects.filter(canvas=obj, funnel=None).order_by('-created_at')[:5]
+        return FlowSerializer(flows, many=True).data
 
 
 class TankSerializer(serializers.ModelSerializer):
@@ -59,6 +65,7 @@ class TankSerializer(serializers.ModelSerializer):
 
 class FunnelSerializer(serializers.ModelSerializer):
     out_tank = TankSerializer(read_only=True)
+    last_flows = serializers.SerializerMethodField()
 
     class Meta:
         model = Funnel
@@ -69,20 +76,23 @@ class FunnelSerializer(serializers.ModelSerializer):
             "flow",
             "flow_type",
             "out_tank",
+            "last_flows",
             "external_id",
             "created_at",
             "modified_at",
         )
         read_only_fields = ("external_id", "created_at", "modified_at", "out_tank")
 
+    def get_last_flows(self, obj):
+        flows = Flow.objects.filter(funnel=obj).order_by('-created_at')[:5]
+        return FlowSerializer(flows, many=True).data
+
 
 class FlowSerializer(serializers.ModelSerializer):
-    funnel = FunnelSerializer(read_only=True)
 
     class Meta:
         model = Flow
         fields = (
-            "funnel",
             "flowed",
             "external_id",
             "created_at",

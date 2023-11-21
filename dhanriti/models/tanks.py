@@ -67,6 +67,9 @@ class Funnel(BaseModel):
 
 class Flow(BaseModel):
     funnel = models.ForeignKey(
-        Funnel, on_delete=models.CASCADE, blank=False, null=False, related_name="flows"
+        Funnel, on_delete=models.CASCADE, blank=False, null=True, related_name="flow_funnel"
+    )
+    canvas = models.ForeignKey(
+        Canvas, on_delete=models.CASCADE, blank=False, null=True, related_name="flow_canvas"
     )
     flowed = models.FloatField(blank=False, null=True)

@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.urls import include, path
 from rest_framework_nested import routers
+from dhanriti.views.flow import FlowViewSet
 
 from dhanriti.views.tanks import CanvasViewSet, FunnelViewSet, TankViewSet
 
@@ -21,6 +22,7 @@ router.register(r"canvases", CanvasViewSet)
 canvas_router = NestedRouter(router, r"canvases", lookup="canvas")
 canvas_router.register(r"tanks", TankViewSet, basename="canvas-tanks")
 canvas_router.register(r"funnels", FunnelViewSet, basename="canvas-funnels")
+canvas_router.register(r"flows", FlowViewSet, basename="canvas-flows")
 
 auth_urls = [
     path("login", APILoginView.as_view(), name="login"),

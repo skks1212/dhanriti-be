@@ -6,5 +6,4 @@ class dhanritiConfig(AppConfig):
     name = "dhanriti"
 
     def ready(self):
-        # from .signals import
-        pass
+        from .signals import flow  # noqa: F401
