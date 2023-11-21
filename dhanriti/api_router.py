@@ -2,6 +2,7 @@ from django.conf import settings
 from django.urls import include, path
 from rest_framework_nested import routers
 from dhanriti.views.flow import FlowViewSet
+from dhanriti.tasks import cron
 
 from dhanriti.views.tanks import CanvasViewSet, FunnelViewSet, TankViewSet
 
@@ -34,4 +35,9 @@ urlpatterns = [
     path(r"", include(router.urls)),
     path("auth/", include(auth_urls)),
     path(r"", include(canvas_router.urls)),
+    path(
+        "cron/<str:cron_key>/",
+        cron.cron_watch,
+        name="cron",
+    ),
 ]

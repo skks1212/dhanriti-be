@@ -39,7 +39,7 @@ def is_valid_crontab_expression(expr):
         1: (0, 23),  # Hour
         2: (1, 31),  # Day of month
         3: (1, 12),  # Month
-        4: (0, 7),  # Day of week (0 and 7 are both Sunday)
+        4: (0, 7),   # Day of week (0 and 7 are both Sunday)
     }
 
     # Define a regex pattern for *, numbers, ranges, and lists
@@ -69,7 +69,7 @@ def is_valid_crontab_expression(expr):
                         or end > valid_ranges[i][1]
                     ):
                         raise ValidationError("Invalid crontab expression")
-                else:
+                elif part.isdigit():
                     # Single value
                     value = int(part)
                     if value < valid_ranges[i][0] or value > valid_ranges[i][1]:

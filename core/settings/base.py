@@ -263,7 +263,12 @@ CELERY_TASK_TIME_LIMIT = 5 * 60
 CELERY_TASK_SOFT_TIME_LIMIT = 60
 
 
-CELERY_BEAT_SCHEDULE = {}
+CELERY_BEAT_SCHEDULE = {
+     "cron": {
+        "task": "dhanriti.tasks.cron.cron_watch",
+        "schedule": crontab(minute=1),
+    },
+}
 
 # django-rest-framework
 # -------------------------------------------------------------------------------
