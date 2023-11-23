@@ -6,21 +6,20 @@ def trigger_canvas_inflow(canvas : Canvas, manual_trigger=False):
     Flow.objects.create(canvas=canvas, flowed=canvas.inflow, manual=manual_trigger)
 
 def trigger_funnel_flow(funnel: Funnel, timely_trigger=False, bypass_last_flow=False, manual_trigger=False):
-    print ("--- New Flow ---")
-    in_tank = funnel.in_tank
     last_flow = None
-    if not in_tank:
+    flow = 0
+    if not funnel.in_tank:
         in_tank_filled = funnel.canvas.filled
-        last_flow = Flow.objects.filter(canvas=funnel.canvas)
+        last_flow = Flow.objects.filter(canvas=funnel.canvas, funnel=None)
     else:
         last_flow = Flow.objects.filter(funnel=Funnel.objects.get(out_tank=funnel.in_tank))
-        in_tank_filled = in_tank.filled
+        in_tank_filled = funnel.in_tank.filled
 
     last_flow = last_flow.order_by("-created_at").first()
 
     if funnel.flow_rate_type == FlowRateType.CONSEQUENT:
         if last_flow and not bypass_last_flow:
-            deductable = last_flow.flowed
+            deductable = last_flow.flowed if not (last_flow.meta and last_flow.meta.get("reduced", False)) else last_flow.meta.get("original_flow", 0)
         else:
             deductable = in_tank_filled
 
@@ -36,6 +35,8 @@ def trigger_funnel_flow(funnel: Funnel, timely_trigger=False, bypass_last_flow=F
             flow = (in_tank_filled * funnel.flow) / 100
         else:
             flow = funnel.flow if funnel.flow < in_tank_filled else in_tank_filled
+    else:
+        return
 
     tank_space = funnel.out_tank.capacity - funnel.out_tank.filled
     if flow > tank_space:
@@ -44,4 +45,7 @@ def trigger_funnel_flow(funnel: Funnel, timely_trigger=False, bypass_last_flow=F
 
     print(f"flowing {flow} from {funnel.in_tank.name if funnel.in_tank else 'Main Tank'} to {funnel.out_tank.name}")
 
-    Flow.objects.create(funnel=funnel, flowed=flow, canvas=funnel.canvas, manual=manual_trigger)
+    Flow.objects.create(funnel=funnel, flowed=flow, canvas=funnel.canvas, manual=manual_trigger, meta={
+        "reduced": flow != funnel.flow,
+        "original_flow": funnel.flow
+    })

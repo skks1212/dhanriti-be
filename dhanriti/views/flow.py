@@ -4,7 +4,7 @@ from dhanriti.serializers.tanks import (
     FlowDetailSerializer,
     FlowSerializer,
 )
-from dhanriti.tasks.flow import trigger_canvas_inflow, trigger_funnel_flow
+from utils.flow import trigger_canvas_inflow, trigger_funnel_flow
 from utils.views.base import BaseModelViewSetPlain
 from django_filters.rest_framework import (
     FilterSet,

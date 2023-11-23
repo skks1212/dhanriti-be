@@ -3,6 +3,14 @@ from dhanriti.models.users import User
 from utils.helpers import is_valid_crontab_expression
 from utils.models.base import BaseModel
 from django.db import models
+from django.db.models.signals import post_save
+
+class BulkCreateSignalManager(models.Manager):
+    def bulk_create(self, objs, **kwargs):
+        a = super(models.Manager,self).bulk_create(objs,**kwargs)
+        for i in objs:
+            post_save.send(i.__class__, instance=i, created=True, raw=True)
+        return a
 
 
 class Canvas(BaseModel):
@@ -47,30 +55,31 @@ class Funnel(BaseModel):
     flow = models.FloatField(blank=False, null=True)
     flow_type = models.IntegerField(choices=FlowType.choices)
     in_tank = models.ForeignKey(
-        Tank, on_delete=models.CASCADE, blank=False, null=True, related_name="in_tank"
+        Tank, on_delete=models.CASCADE, blank=False, null=True, related_name="funnels"
     )
     out_tank = models.ForeignKey(
         Tank,
         on_delete=models.CASCADE,
         blank=False,
         null=False,
-        related_name="out_tank",
+        related_name="parent_funnel",
     )
     canvas= models.ForeignKey(
         Canvas,
         on_delete=models.CASCADE,
         blank=False,
         null=True,
-        related_name="canvas",
+        related_name="funnels",
     )
 
 
 class Flow(BaseModel):
+    objects = BulkCreateSignalManager()
     funnel = models.ForeignKey(
-        Funnel, on_delete=models.CASCADE, blank=False, null=True, related_name="flow_funnel"
+        Funnel, on_delete=models.CASCADE, blank=False, null=True, related_name="flows"
     )
     canvas = models.ForeignKey(
-        Canvas, on_delete=models.CASCADE, blank=False, null=True, related_name="flow_canvas"
+        Canvas, on_delete=models.CASCADE, blank=False, null=True, related_name="flows"
     )
     flowed = models.FloatField(blank=False, null=True)
     manual = models.BooleanField(default=False)

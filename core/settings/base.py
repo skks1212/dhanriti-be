@@ -266,7 +266,7 @@ CELERY_TASK_SOFT_TIME_LIMIT = 60
 CELERY_BEAT_SCHEDULE = {
      "cron": {
         "task": "dhanriti.tasks.cron.cron_watch",
-        "schedule": crontab(minute=1),
+        "schedule": crontab(minute="*/1"), # Every minute
     },
 }
 

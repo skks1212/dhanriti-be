@@ -4,7 +4,8 @@ from celery import shared_task
 from django.db import models
 from django.http import HttpResponse, HttpResponseForbidden
 
-from dhanriti.models.tanks import Canvas, Flow, Funnel, FlowRateType
+from dhanriti.models.tanks import Canvas, Flow, Funnel, FlowRateType, FlowType
+from utils.flow import trigger_canvas_inflow, trigger_funnel_flow
 
 @shared_task
 def cron_watch(request=None, cron_key=None):
@@ -14,41 +15,43 @@ def cron_watch(request=None, cron_key=None):
     if cron_key is None:
         pass
     
-    all_canvases = Canvas.objects.all()
-    
+    # Fetch current time once
+    now = timezone.now()
+
+    # Fetch all canvases with related flows and funnels to reduce queries in loops
+    all_canvases = Canvas.objects.prefetch_related('flows', 'funnels')
+
+    # Process each canvas
     for canvas in all_canvases:
         cron = canvas.inflow_rate
-        last_flow = Flow.objects.filter(canvas=canvas, funnel=None, manual=False).order_by("-created_at").first()
-        if last_flow:
-            last_flow = last_flow.created_at
-        else:
-            last_flow = canvas.created_at
+        # Use the related_name of Flow to Canvas if defined, or use flow_set if not defined
+        last_flow : Flow = canvas.flows.filter(funnel=None, manual=False).order_by("-created_at").first()
+        last_flow_time = last_flow.created_at if last_flow else canvas.created_at
 
-        next_flow = croniter.croniter(cron, last_flow).get_next(timezone.now().__class__)
+        next_flow_time = croniter.croniter(cron, last_flow_time).get_next(timezone.now().__class__)
 
-
-        print(next_flow)
-        if next_flow < timezone.now():
+        if next_flow_time < now:
             print(f"Triggering canvas {canvas.name} inflow")
-            Flow.objects.create(canvas=canvas, flowed=canvas.inflow)
+            trigger_canvas_inflow(canvas)
 
-        funnels = Funnel.objects.filter(canvas=canvas, flow_rate_type=FlowRateType.TIMELY)
+    # Fetch all funnels related to the canvases
+    all_funnels = Funnel.objects.filter(canvas__in=all_canvases, flow_rate_type=FlowRateType.TIMELY).select_related('canvas')
 
-        for funnel in funnels:
-            cron = funnel.flow_rate
-            last_flow = Flow.objects.filter(funnel=funnel, funnel__deleted=False, manual=False).order_by("-created_at").first()
-            if last_flow:
-                last_flow = last_flow.created_at
-            else:
-                last_flow = funnel.created_at
+    # Process each funnel
+    for funnel in all_funnels:
+        cron = funnel.flow_rate
+        last_flow = funnel.flows.filter(funnel__deleted=False, manual=False).order_by("-created_at").first()
+        last_flow_time = last_flow.created_at if last_flow else funnel.created_at
 
-            next_flow = croniter.croniter(cron, last_flow).get_next(timezone.now().__class__)
+        next_flow_time = croniter.croniter(cron, last_flow_time).get_next(timezone.now().__class__)
 
-            if next_flow < timezone.now():
-                print(f"Triggering funnel {funnel.name} flow")
-                Flow.objects.create(funnel=funnel, flowed=funnel.flow, canvas=canvas)
+        if next_flow_time < now:
+            print(f"Triggering funnel {funnel.name} flow")
 
-    return HttpResponse("Done")
+            trigger_funnel_flow(funnel, timely_trigger=True, bypass_last_flow=True)
+
+    if request:
+        return HttpResponse("Done")
         
         
 

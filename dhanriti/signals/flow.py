@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from dhanriti.models.tanks import Flow, Funnel
-from dhanriti.tasks.flow import trigger_funnel_flow
+from utils.flow import trigger_funnel_flow
 
 @receiver(
     post_save,

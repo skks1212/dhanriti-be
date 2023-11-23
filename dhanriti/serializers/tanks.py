@@ -68,7 +68,7 @@ class TankSerializer(serializers.ModelSerializer):
         read_only_fields = ("external_id", "created_at", "modified_at")
 
     def get_funnels(self, obj):
-        return FunnelSerializer(obj.in_tank.all(), many=True).data
+        return FunnelSerializer(obj.funnels.all(), many=True).data
 
 
 class FunnelSerializer(serializers.ModelSerializer):
