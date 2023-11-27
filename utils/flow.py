@@ -1,3 +1,4 @@
+from functools import reduce
 from dhanriti.models.enums import FlowRateType, FlowType
 from dhanriti.models.tanks import Canvas, Flow, Funnel
 
@@ -38,14 +39,21 @@ def trigger_funnel_flow(funnel: Funnel, timely_trigger=False, bypass_last_flow=F
     else:
         return
 
+    reduce_reason = None
     tank_space = funnel.out_tank.capacity - funnel.out_tank.filled
     if flow > tank_space:
-        print(f"Flow reduced to {tank_space} from {flow} because tank does not have space")
+        print(f"Flow reduced to {tank_space} from {flow} because out tank does not have space")
         flow = tank_space
+        reduce_reason = "out_tank_space"
+    elif flow > funnel.in_tank.filled:
+        print(f"Flow reduced to {funnel.in_tank.filled} from {flow} because in tank does not have enough money")
+        reduce_reason = "in_tank_space"
+        flow = funnel.in_tank.filled
 
     print(f"flowing {flow} from {funnel.in_tank.name if funnel.in_tank else 'Main Tank'} to {funnel.out_tank.name}")
 
     Flow.objects.create(funnel=funnel, flowed=flow, canvas=funnel.canvas, manual=manual_trigger, meta={
         "reduced": flow != funnel.flow,
+        "reduced_reason": reduce_reason,
         "original_flow": funnel.flow
     })

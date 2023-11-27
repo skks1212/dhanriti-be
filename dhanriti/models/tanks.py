@@ -72,6 +72,9 @@ class Funnel(BaseModel):
         related_name="funnels",
     )
 
+    def __str__(self) -> str:
+        return f"[{self.canvas.name}] Flows {self.flow} {'/-' if self.flow_type == FlowType.ABSOLUTE else '%'} from {self.in_tank.name if self.in_tank else 'Main Tank'} to {self.out_tank.name} every {self.flow_rate if self.flow_rate_type == FlowRateType.TIMELY else 'inflow'}"
+
 
 class Flow(BaseModel):
     objects = BulkCreateSignalManager()
@@ -84,3 +87,6 @@ class Flow(BaseModel):
     flowed = models.FloatField(blank=False, null=True)
     manual = models.BooleanField(default=False)
     meta = models.JSONField(blank=True, null=True)
+
+    def __str__(self) -> str:
+        return f"Flowed {self.flowed} Rs. from {(self.funnel.in_tank.name if self.funnel.in_tank else 'Main Tank') if self.funnel else 'Canvas Inflow'} to {self.funnel.out_tank.name if self.funnel else 'Main Tank'} on {self.created_at}"
