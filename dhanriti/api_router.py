@@ -3,6 +3,7 @@ from django.urls import include, path
 from rest_framework_nested import routers
 from dhanriti.views.flow import FlowViewSet
 from dhanriti.tasks import cron
+from dhanriti.views.payments import PaymentsViewSet
 
 from dhanriti.views.tanks import CanvasViewSet, FunnelViewSet, TankViewSet
 
@@ -22,6 +23,8 @@ router.register(r"canvases", CanvasViewSet)
 
 canvas_router = NestedRouter(router, r"canvases", lookup="canvas")
 canvas_router.register(r"tanks", TankViewSet, basename="canvas-tanks")
+tanks_router = NestedRouter(canvas_router, r"tanks", lookup="tank")
+tanks_router.register(r"payments", PaymentsViewSet, basename="tank-payments")
 canvas_router.register(r"funnels", FunnelViewSet, basename="canvas-funnels")
 canvas_router.register(r"flows", FlowViewSet, basename="canvas-flows")
 
@@ -35,6 +38,7 @@ urlpatterns = [
     path(r"", include(router.urls)),
     path("auth/", include(auth_urls)),
     path(r"", include(canvas_router.urls)),
+    path(r"", include(tanks_router.urls)),
     path(
         "cron/<str:cron_key>/",
         cron.cron_watch,

@@ -1,4 +1,3 @@
-from functools import reduce
 from dhanriti.models.enums import FlowRateType, FlowType
 from dhanriti.models.tanks import Canvas, Flow, Funnel
 
