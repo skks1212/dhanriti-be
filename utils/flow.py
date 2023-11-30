@@ -44,7 +44,7 @@ def trigger_funnel_flow(funnel: Funnel, timely_trigger=False, bypass_last_flow=F
         print(f"Flow reduced to {tank_space} from {flow} because out tank does not have space")
         flow = tank_space
         reduce_reason = "out_tank_space"
-    elif flow > funnel.in_tank.filled:
+    elif funnel.in_tank and flow > funnel.in_tank.filled:
         print(f"Flow reduced to {funnel.in_tank.filled} from {flow} because in tank does not have enough money")
         reduce_reason = "in_tank_space"
         flow = funnel.in_tank.filled
